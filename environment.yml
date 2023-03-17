@@ -4,6 +4,7 @@ channels:
   - pytorch
   - defaults
 dependencies:
+  - chardet=4.0.*
   - jupyterlab=3.6.*
   - matplotlib=3.7.*
   - pandas=1.5.*
