@@ -3,3 +3,4 @@
 training_results/**
 cleaned_data/**
 data/**
+**/__pycache__/**

@@ -1,0 +1,9 @@
+python trainer/task.py --batch-size 128 --num-epochs 20 --device mps --learning-rate 0.001 --weight-decay 0.01 --embedding-dimensions 50 --hidden-layer-size 16 --output-folder 50d16n --model-name none
+python trainer/task.py --batch-size 128 --num-epochs 20 --device mps --learning-rate 0.001 --weight-decay 0.01 --embedding-dimensions 50 --hidden-layer-size 32 --output-folder 50d32n --model-name none
+python trainer/task.py --batch-size 128 --num-epochs 20 --device mps --learning-rate 0.001 --weight-decay 0.01 --embedding-dimensions 50 --hidden-layer-size 64 --output-folder 50d64n --model-name none
+python trainer/task.py --batch-size 128 --num-epochs 20 --device mps --learning-rate 0.001 --weight-decay 0.01 --embedding-dimensions 50 --hidden-layer-size 128 --output-folder 50d128n --model-name none
+python trainer/task.py --batch-size 128 --num-epochs 20 --device mps --learning-rate 0.001 --weight-decay 0.01 --embedding-dimensions 50 --hidden-layer-size 256 --output-folder 50d256n --model-name none
+python trainer/task.py --batch-size 128 --num-epochs 20 --device mps --learning-rate 0.001 --weight-decay 0.01 --embedding-dimensions 50 --hidden-layer-size 512 --output-folder 50d512n --model-name none
+python trainer/task.py --batch-size 128 --num-epochs 20 --device mps --learning-rate 0.001 --weight-decay 0.01 --embedding-dimensions 50 --hidden-layer-size 1024 --output-folder 50d1024n --model-name none
+python trainer/task.py --batch-size 128 --num-epochs 20 --device mps --learning-rate 0.001 --weight-decay 0.01 --embedding-dimensions 50 --hidden-layer-size 2048 --output-folder 50d2048n --model-name none
+python trainer/task.py --batch-size 128 --num-epochs 20 --device mps --learning-rate 0.001 --weight-decay 0.01 --embedding-dimensions 50 --hidden-layer-size 4096 --output-folder 50d4096n --model-name none
