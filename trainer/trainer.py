@@ -24,7 +24,7 @@ def run(args):
 
     # load data, split datasets, build vocabs
     #TODO: Parameterize this
-    dataset = CrosswordClueAnswersDataset("cleaned_data/clean_2.csv")
+    dataset = CrosswordClueAnswersDataset("cleaned_data/clean_3.csv")
     train_size = int(0.8 * len(dataset))
     dev_size = int(0.1 * len(dataset))
     test_size = len(dataset) - train_size - dev_size
