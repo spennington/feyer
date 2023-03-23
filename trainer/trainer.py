@@ -83,7 +83,7 @@ def run(args):
         os.makedirs(train_dir)
     print(f'Outputting to: {train_dir}')
 
-    log_interval = len(train_dataloader) / 5
+    log_interval = int(len(train_dataloader) / 5)
     reporter = TrainingReporter(train_dir, log_interval)
     training = Trainer(model=model, criterion=criterion, optimizer=optimizer, reporter=reporter, output_dir=train_dir)
     training.start(num_epochs=args.num_epochs, train_dataloader=train_dataloader, test_dataloader=dev_dataloader)
