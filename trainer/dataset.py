@@ -20,6 +20,4 @@ class CrosswordClueAnswersDataset(Dataset):
             idx = idx.tolist()
 
         data = self.values[idx, :]
-        #return (data[0], data[1], data[2])
         return data
-        #TODO: check taht this works!!!
