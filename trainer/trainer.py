@@ -1,5 +1,4 @@
 import os
-import time
 import torch
 from torch.utils.data import DataLoader
 from torchtext.data.utils import get_tokenizer
@@ -7,11 +6,12 @@ from torchtext.vocab import build_vocab_from_iterator
 
 from dataset import CrosswordClueAnswersDataset
 from models import SimpleCrosswordModel
+from models import RecurrentCrosswordModel
 from training import Trainer
 from trainingstats import TrainingReporter
 
 PADDING_TOKEN_INDEX = 0
-PAD_TO_SIZE = 45
+PAD_TO_SIZE = 11
 
 def run(args):
     device = args.device
@@ -24,7 +24,7 @@ def run(args):
 
     # load data, split datasets, build vocabs
     #TODO: Parameterize this
-    dataset = CrosswordClueAnswersDataset("cleaned_data/clean_3.csv")
+    dataset = CrosswordClueAnswersDataset("cleaned_data/dupes_10_or_less_tokens.csv")
     train_size = int(0.8 * len(dataset))
     dev_size = int(0.1 * len(dataset))
     test_size = len(dataset) - train_size - dev_size
@@ -37,7 +37,7 @@ def run(args):
     clues_iter = map(lambda data: tokenizer(data[1]), train_dataset)
     answers_iter = map(lambda data: tokenizer(data[0]), train_dataset)
     
-    clues_vocab = build_vocab_from_iterator(clues_iter, specials=['<pad>', '<unk>'])
+    clues_vocab = build_vocab_from_iterator(clues_iter, specials=['<pad>', '<unk>', '<1>', '<2>', '<3>', '<4>', '<5>', '<6>', '<7>', '<8>', '<9>', '<10>', '<11>', '<12>', '<13>', '<14>', '<15>', '<16>', '<17>', '<18>', '<19>', '<20>', '<21>', '<22>'])
     clues_vocab.set_default_index(1)
 
     answers_vocab = build_vocab_from_iterator(answers_iter, specials=['<unk>'])
@@ -50,8 +50,15 @@ def run(args):
         answer_list, clue_list = [], []
 
         for (answer, clue) in batch:
-            clue_indicies = clues_vocab(tokenizer(clue))
-            clue_indicies += [PADDING_TOKEN_INDEX] * (PAD_TO_SIZE - len(clue_indicies))
+            answer_length = len(answer)
+            length_token = '<' + str(answer_length) + '>'
+            tokens = tokenizer(clue)
+            tokens.insert(0, length_token)
+            clue_indicies = clues_vocab(tokens)
+            pad_len = PAD_TO_SIZE - len(clue_indicies)
+            if pad_len < 0:
+                raise Exception('pad_len < 0')
+            clue_indicies += [PADDING_TOKEN_INDEX] * (pad_len)
             clue_list.append(clue_indicies)
 
             answer_list.append(answers_vocab([answer])[0])
@@ -73,10 +80,26 @@ def run(args):
         input_size=PAD_TO_SIZE,
         hidden_size=args.hidden_layer_size,
         output_size=len(answers_vocab),
-        device=device)
+        device=device,
+        hidden_depth=args.hidden_depth)
 
-    criterion = torch.nn.CrossEntropyLoss(ignore_index=0)
+    # model = RecurrentCrosswordModel(
+    #     vocab_size=len(clues_vocab),
+    #     output_size=len(answers_vocab),
+    #     embed_dim=args.embedding_dimensions,
+    #     hidden_size=args.hidden_layer_size,
+    #     hidden_depth=args.hidden_depth,
+    #     device=device
+    # )
+
+    trainable_model_parameters = filter(lambda p: p.requires_grad, model.parameters())
+    params_count = sum(p.numel() for p in model.parameters())
+    trainable_params_count = sum(p.numel() for p in trainable_model_parameters)
+    print(f'{params_count=}\n{trainable_params_count=}')
+
+    criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
+    #optimizer = torch.optim.SGD(model.parameters(), lr=args.learning_rate)
 
     train_dir = os.path.join('training_results', args.output_folder)
     if not os.path.exists(train_dir):

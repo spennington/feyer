@@ -57,17 +57,17 @@ def get_args():
         help='Number of neurons in the hidden layer.',
         default=32,
         type=int)
-
+    args_parser.add_argument(
+        '--hidden-depth',
+        help='Number of hidden layers in the network.',
+        default=1,
+        type=int)
 
     # Saved model arguments
     args_parser.add_argument(
         '--output-folder',
         required=True,
         help='The name of the folder where to save the model and training results in.')
-    args_parser.add_argument(
-        '--model-name',
-        required=True,
-        help='The name of your saved model')
 
     return args_parser.parse_args()
 
