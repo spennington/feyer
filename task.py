@@ -1,6 +1,6 @@
 import argparse
 
-import trainer
+import trainer.crossword.trainer
 
 
 def get_args():
@@ -77,7 +77,7 @@ def main():
     """
     args = get_args()
     print(args)
-    trainer.run(args)
+    trainer.crossword.trainer.run(args)
 
 
 if __name__ == '__main__':

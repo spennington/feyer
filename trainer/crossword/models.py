@@ -14,7 +14,7 @@ class SimpleCrosswordModel(nn.Module):
         self.hiddenActivations = []
         for _ in range(hidden_depth):
             self.hiddenLayers.append(nn.Linear(hidden_size, hidden_size, device=device))
-        
+
         self.W2 = nn.Linear(hidden_size, output_size, device=device)
 
     def forward(self, text):
@@ -23,7 +23,7 @@ class SimpleCrosswordModel(nn.Module):
 
         for hiddenLayer in self.hiddenLayers:
             h1 = F.tanh(hiddenLayer(h1))
-        
+
         return self.W2(h1)
 
 class RecurrentCrosswordModel(nn.Module):
@@ -44,11 +44,30 @@ class RecurrentCrosswordModel(nn.Module):
         #print(f'{emb.shape=}') # (batch size, 10, 2)
         #emb_packed = emb.view(-1, self.embed_dim * 10)
         #print(f'{emb_packed.shape=}') # (batch size, 20)
-        
+
         h0 = Variable(torch.zeros(self.hidden_depth, encoded_clue.size(0), self.hidden_size)).to(self.device)
         out, _ = self.RNN(emb, h0)
-        out = self.W2(out[:, -1, :]) 
+        out = self.W2(out[:, -1, :])
         return out
 
     def init_hidden(self, batch_size):
         return torch.zeros(batch_size, self.hidden_size).to(self.device)
+
+class CharacterRNN(nn.Module):
+    def __init__(self, vocab_size, hidden_size, device, num_layers=1):
+        super(CharacterRNN, self).__init__()
+        # recurrent neural network
+        #self.rnn = nn.RNN(input_size=vocab_size, hidden_size=hidden_size, num_layers=num_layers, nonlinearity='tanh', batch_first=True, device=device)
+        self.rnn = nn.LSTM(input_size=vocab_size, hidden_size=hidden_size, num_layers=num_layers, batch_first=True, device=device)
+
+        # a fully-connect layer that outputs a distribution over
+        # the next token, given the RNN output
+        self.decoder = nn.Linear(hidden_size, vocab_size, device=device)
+
+    def forward(self, one_hot_characters, hidden=None):
+        #torch.nn.utils.rnn.pack_padded_sequence(inputs, input_lengths, batch_first=True, enforce_sorted=False)
+        #output, hidden = self.rnn(packed_one_hot_character, hidden) # get the next output and hidden state
+        #output = self.decoder(torch.nn.utils.rnn.pad_packed_sequence(output, batch_first=True)[0])          # predict distribution over next tokens
+        output, hidden = self.rnn(one_hot_characters, hidden) # get the next output and hidden state
+        output = self.decoder(output)          # predict distribution over next tokens
+        return output, hidden

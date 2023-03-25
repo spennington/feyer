@@ -1,10 +1,8 @@
 import json
 import os
-import time
-import torch
 
 class TrainingReporter:
-    
+
     def __init__(self, output_dir, batch_log_interval) -> None:
         self.batch_log_interval = batch_log_interval
         self.__reset_batch_stats()
@@ -38,7 +36,7 @@ class TrainingReporter:
                                               self.log_interval_acc / self.log_interval_count,
                                               self.log_interval_loss / self.log_interval_batch_count,
                                               self.log_interval_elapsed))
-            
+
             self.__reset_batch_stats()
 
     def epoch_complete(self, epoch: int, train_accuracy: float, train_loss: float, test_accuracy: float, test_loss: float, elapsed: float):
