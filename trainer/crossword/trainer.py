@@ -40,8 +40,9 @@ def build_character_model(dataset, device, args):
         for (answer, clue) in batch:
             tokens = transform_tokens(clue=clue, answer=answer)
             token_indicies = torch.tensor(vocab(tokens))
-            one_hots = F.one_hot(token_indicies, len(vocab))
-            inputs.append(one_hots[:-1].float()) # skip last token, float so mps works
+            #one_hots = F.one_hot(token_indicies, len(vocab))
+            #inputs.append(one_hots[:-1].float()) # skip last token, float so mps works
+            inputs.append(token_indicies[:-1]) # skip last token
             clue_length_with_specials = len(clue) + 3
             output = []
             output.extend([0] * (clue_length_with_specials - 1)) # skip first token since that's not an output
@@ -60,7 +61,7 @@ def build_character_model(dataset, device, args):
 
         return inputs, outputs, input_lengths, answer_lengths, clues, answers
 
-    model = CharacterRNN(vocab_size=len(vocab), hidden_size=args.hidden_layer_size, device=device, num_layers=args.hidden_depth)
+    model = CharacterRNN(vocab_size=len(vocab), hidden_size=args.hidden_layer_size, device=device, num_layers=args.hidden_depth, embedding_dimensions=args.embedding_dimensions)
 
     return model, collate_batch, vocab
 

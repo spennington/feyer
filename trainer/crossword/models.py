@@ -54,20 +54,27 @@ class RecurrentCrosswordModel(nn.Module):
         return torch.zeros(batch_size, self.hidden_size).to(self.device)
 
 class CharacterRNN(nn.Module):
-    def __init__(self, vocab_size, hidden_size, device, num_layers=1):
+    def __init__(self, vocab_size, hidden_size, device, num_layers=1, embedding_dimensions=16):
         super(CharacterRNN, self).__init__()
+        self.C = nn.Embedding(vocab_size, embedding_dimensions, device=device)
+
         # recurrent neural network
         #self.rnn = nn.RNN(input_size=vocab_size, hidden_size=hidden_size, num_layers=num_layers, nonlinearity='tanh', batch_first=True, device=device)
-        self.rnn = nn.LSTM(input_size=vocab_size, hidden_size=hidden_size, num_layers=num_layers, batch_first=True, device=device)
+        self.rnn = nn.LSTM(input_size=embedding_dimensions, hidden_size=hidden_size, num_layers=num_layers, batch_first=True, device=device)
 
         # a fully-connect layer that outputs a distribution over
         # the next token, given the RNN output
         self.decoder = nn.Linear(hidden_size, vocab_size, device=device)
 
-    def forward(self, one_hot_characters, hidden=None):
+    def forward(self, encoded_characters, hidden=None):
+        #print(f'{encoded_characters.shape=}')
+        emb = self.C(encoded_characters)
+        #print(f'{emb.shape=}')
+        view = emb.view(-1, self.rnn.input_size)
+        #print(f'{view.shape=}')
         #torch.nn.utils.rnn.pack_padded_sequence(inputs, input_lengths, batch_first=True, enforce_sorted=False)
         #output, hidden = self.rnn(packed_one_hot_character, hidden) # get the next output and hidden state
         #output = self.decoder(torch.nn.utils.rnn.pad_packed_sequence(output, batch_first=True)[0])          # predict distribution over next tokens
-        output, hidden = self.rnn(one_hot_characters, hidden) # get the next output and hidden state
+        output, hidden = self.rnn(emb, hidden) # get the next output and hidden state
         output = self.decoder(output)          # predict distribution over next tokens
         return output, hidden

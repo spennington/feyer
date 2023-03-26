@@ -109,7 +109,8 @@ class CharacterTrainer:
                     # predicted answer starts one sooner since we'd expect an <EOA>
                     predicted_answer_start = actual_answer_start - 1
                     predicted_answer = predicted_tokens[i, predicted_answer_start:predicted_answer_start+answer_length:]
-                    actual_answer = torch.argmax(inputs[i, actual_answer_start:actual_answer_start+answer_length], dim=1)
+                    #actual_answer = torch.argmax(inputs[i, actual_answer_start:actual_answer_start+answer_length], dim=1)
+                    actual_answer = inputs[i, actual_answer_start:actual_answer_start+answer_length]
                     if torch.equal(actual_answer, predicted_answer):
                         running_acc += 1
                         #print(clues[i], answers[i], list(map(lambda x: itos[x], predicted_answer)))
